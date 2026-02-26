@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Feeding System™</title>
+
+<style>
+:root{
+    --primary:#6F7D4E;
+    --accent:#E4B949;
+    --bg:#F4F4EE;
+    --card:#FFFFFF;
+    --text:#1F1F1F;
+}
+
+body{
+    margin:0;
+    font-family:Segoe UI, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+}
+
+.container{
+    max-width:900px;
+    margin:auto;
+    padding:40px 20px;
+}
+
+h1{
+    text-align:center;
+}
+
+.card{
+    background:var(--card);
+    padding:25px;
+    border-radius:16px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.06);
+    margin-bottom:20px;
+}
+
+label{
+    display:block;
+    font-weight:600;
+    margin-top:15px;
+}
+
+input, select{
+    width:100%;
+    padding:12px;
+    border-radius:8px;
+    border:1px solid #ddd;
+    margin-top:6px;
+}
+
+button{
+    background:var(--primary);
+    color:white;
+    padding:14px 22px;
+    border:none;
+    border-radius:10px;
+    font-size:15px;
+    margin-top:20px;
+    cursor:pointer;
+}
+
+button:hover{
+    opacity:0.9;
+}
+
+.result-page{
+    display:none;
+}
+
+.report-box{
+    background:white;
+    padding:30px;
+    border-radius:16px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.05);
+}
+
+.kcal-big{
+    font-size:36px;
+    font-weight:bold;
+    color:var(--primary);
+}
+
+.subtitle{
+    color:#666;
+}
+
+.actions{
+    margin-top:30px;
+}
+
+.print-btn{
+    background:var(--accent);
+}
+
+.back-btn{
+    background:#999;
+    margin-left:10px;
+}
+
+@media print{
+    body{
+        background:white;
+    }
+    .actions, #setupPage{
+        display:none!important;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<div id="setupPage">
+
+<h1>Smart Feeding System™</h1>
+
+<div class="card">
+
+<label>Unit System</label>
+<select id="unitSystem">
+<option value="metric">Metric (kg)</option>
+<option value="imperial">Imperial (lbs)</option>
+</select>
+
+<label>Number of Dogs</label>
+<select id="numDogs" onchange="generateDogs()">
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+</select>
+
+<div id="dogInputs"></div>
+
+<button onclick="calculate()">Calculate Plan</button>
+
+</div>
+
+</div>
+
+<div id="resultPage" class="result-page">
+<h1>Feeding Report</h1>
+
+<div class="report-box" id="reportContent"></div>
+
+<div class="actions">
+<button class="print-btn" onclick="window.print()">Download / Print</button>
+<button class="back-btn" onclick="goBack()">Back</button>
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+function generateDogs(){
+    const num=document.getElementById("numDogs").value;
+    const unit=document.getElementById("unitSystem").value;
+    const container=document.getElementById("dogInputs");
+    container.innerHTML="";
+
+    const weightLabel=unit==="metric"?"Weight (kg)":"Weight (lbs)";
+
+    for(let i=1;i<=num;i++){
+        container.innerHTML+=`
+        <div class="card">
+            <h3>Dog ${i}</h3>
+
+            <label>Name</label>
+            <input type="text" id="name${i}">
+
+            <label>${weightLabel}</label>
+            <input type="number" step="0.1" id="weight${i}">
+
+            <label>Nutrition Plan</label>
+            <select id="plan${i}">
+                <option value="1.8">Highly Active</option>
+                <option value="1.5">Maintenance</option>
+                <option value="1.2">Weight Loss</option>
+            </select>
+
+            <label>Meals per Day</label>
+            <select id="meals${i}">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+            </select>
+        </div>`;
+    }
+}
+
+function calculate(){
+    const num=document.getElementById("numDogs").value;
+    const unit=document.getElementById("unitSystem").value;
+    const report=document.getElementById("reportContent");
+
+    report.innerHTML="";
+
+    for(let i=1;i<=num;i++){
+
+        const name=document.getElementById(`name${i}`).value||`Dog ${i}`;
+        let weight=parseFloat(document.getElementById(`weight${i}`).value);
+        const multiplier=parseFloat(document.getElementById(`plan${i}`).value);
+        const meals=parseInt(document.getElementById(`meals${i}`).value);
+
+        if(unit==="imperial"){
+            weight*=0.453592;
+        }
+
+        const RER=70*Math.pow(weight,0.75);
+        const daily=RER*multiplier;
+        const perMeal=daily/meals;
+
+        report.innerHTML+=`
+        <div style="margin-bottom:30px;">
+            <h2>${name}</h2>
+            <div class="kcal-big">${Math.round(daily)} kcal / day</div>
+            <div class="subtitle">${Math.round(perMeal)} kcal per meal</div>
+        </div>
+        `;
+    }
+
+    document.getElementById("setupPage").style.display="none";
+    document.getElementById("resultPage").style.display="block";
+}
+
+function goBack(){
+    document.getElementById("resultPage").style.display="none";
+    document.getElementById("setupPage").style.display="block";
+}
+
+generateDogs();
+
+</script>
+
+</body>
+</html>
