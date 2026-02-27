@@ -16,7 +16,7 @@
 
 body{
     margin:0;
-    font-family:Segoe UI, sans-serif;
+    font-family:Montserrat, sans-serif;
     background:var(--bg);
     color:var(--text);
 }
@@ -85,10 +85,6 @@ button:hover{
     color:var(--primary);
 }
 
-.subtitle{
-    color:#666;
-}
-
 .actions{
     margin-top:30px;
 }
@@ -103,15 +99,12 @@ button:hover{
 }
 
 @media print{
-    body{
-        background:white;
-    }
-    .actions, #setupPage{
-        display:none!important;
-    }
+    body{ background:white; }
+    .actions, #setupPage{ display:none!important; }
 }
 </style>
 </head>
+
 <body>
 
 <div class="container">
@@ -123,7 +116,7 @@ button:hover{
 <div class="card">
 
 <label>Unit System</label>
-<select id="unitSystem">
+<select id="unitSystem" onchange="generateDogs()">
 <option value="metric">Metric (kg)</option>
 <option value="imperial">Imperial (lbs)</option>
 </select>
@@ -162,15 +155,15 @@ button:hover{
 <script>
 
 function generateDogs(){
-    const num=document.getElementById("numDogs").value;
-    const unit=document.getElementById("unitSystem").value;
-    const container=document.getElementById("dogInputs");
-    container.innerHTML="";
+    const num = document.getElementById("numDogs").value;
+    const unit = document.getElementById("unitSystem").value;
+    const container = document.getElementById("dogInputs");
+    container.innerHTML = "";
 
-    const weightLabel=unit==="metric"?"Weight (kg)":"Weight (lbs)";
+    const weightLabel = unit === "metric" ? "Weight (kg)" : "Weight (lbs)";
 
     for(let i=1;i<=num;i++){
-        container.innerHTML+=`
+        container.innerHTML += `
         <div class="card">
             <h3>Dog ${i}</h3>
 
@@ -178,7 +171,7 @@ function generateDogs(){
             <input type="text" id="name${i}">
 
             <label>${weightLabel}</label>
-            <input type="number" step="0.1" id="weight${i}">
+            <input type="number" step="0.1" id="weight${i}" placeholder="${weightLabel}">
 
             <label>Nutrition Plan</label>
             <select id="plan${i}">
@@ -198,32 +191,31 @@ function generateDogs(){
 }
 
 function calculate(){
-    const num=document.getElementById("numDogs").value;
-    const unit=document.getElementById("unitSystem").value;
-    const report=document.getElementById("reportContent");
-
-    report.innerHTML="";
+    const num = document.getElementById("numDogs").value;
+    const unit = document.getElementById("unitSystem").value;
+    const report = document.getElementById("reportContent");
+    report.innerHTML = "";
 
     for(let i=1;i<=num;i++){
 
-        const name=document.getElementById(`name${i}`).value||`Dog ${i}`;
-        let weight=parseFloat(document.getElementById(`weight${i}`).value);
-        const multiplier=parseFloat(document.getElementById(`plan${i}`).value);
-        const meals=parseInt(document.getElementById(`meals${i}`).value);
+        const name = document.getElementById(`name${i}`).value || `Dog ${i}`;
+        let weight = parseFloat(document.getElementById(`weight${i}`).value);
+        const multiplier = parseFloat(document.getElementById(`plan${i}`).value);
+        const meals = parseInt(document.getElementById(`meals${i}`).value);
 
-        if(unit==="imperial"){
-            weight*=0.453592;
+        if(unit === "imperial"){
+            weight = weight * 0.453592;
         }
 
-        const RER=70*Math.pow(weight,0.75);
-        const daily=RER*multiplier;
-        const perMeal=daily/meals;
+        const RER = 70 * Math.pow(weight,0.75);
+        const daily = RER * multiplier;
+        const perMeal = daily / meals;
 
-        report.innerHTML+=`
+        report.innerHTML += `
         <div style="margin-bottom:30px;">
             <h2>${name}</h2>
             <div class="kcal-big">${Math.round(daily)} kcal / day</div>
-            <div class="subtitle">${Math.round(perMeal)} kcal per meal</div>
+            <div>${Math.round(perMeal)} kcal per meal</div>
         </div>
         `;
     }
